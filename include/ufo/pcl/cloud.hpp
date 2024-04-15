@@ -325,9 +325,9 @@ class Cloud
 		// Tags
 		using iterator_category = std::random_access_iterator_tag;
 		using difference_type   = std::ptrdiff_t;
-		using value_type        = value_type_ref;
+		using value_type        = Cloud::value_type_ref;
 		using pointer           = void;  // TODO: What should this be?
-		using reference         = value_type;
+		using reference         = Cloud::value_type;
 
 	 public:
 		const_iterator() = default;
@@ -850,13 +850,13 @@ class Cloud
 	auto value(std::size_t index) { return std::as_const(this)->operator[](index); }
 
 	template <class E>
-	auto get()
+	std::vector<E>& get()
 	{
 		return std::get<std::vector<std::decay_t<E>>>(data_);
 	}
 
 	template <class E>
-	auto get() const
+	std::vector<E> const& get() const
 	{
 		return std::get<std::vector<std::decay_t<E>>>(data_);
 	}

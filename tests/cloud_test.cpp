@@ -2,6 +2,7 @@
 #include <ufo/pcl/cloud.hpp>
 
 // Catch2
+#include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 struct Point {
@@ -13,12 +14,20 @@ struct Point {
 
 	Point(float x, float y, float z) : x(x), y(y), z(z) {}
 
-	void operator+=(Point rhs)
+	Point& operator+=(Point rhs)
 	{
 		x += rhs.x;
 		y += rhs.y;
 		z += rhs.z;
+		return *this;
 	}
+
+	friend bool operator==(Point lhs, Point rhs)
+	{
+		return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
+	}
+
+	friend bool operator!=(Point lhs, Point rhs) { return !(lhs == rhs); }
 };
 
 struct Occupancy {
@@ -33,6 +42,13 @@ struct Occupancy {
 		this->occupancy = occupancy;
 		return *this;
 	}
+
+	friend bool operator==(Occupancy lhs, Occupancy rhs)
+	{
+		return lhs.occupancy == rhs.occupancy;
+	}
+
+	friend bool operator!=(Occupancy lhs, Occupancy rhs) { return !(lhs == rhs); }
 };
 
 struct Color {
@@ -43,6 +59,13 @@ struct Color {
 	Color() = default;
 
 	Color(float red, float green, float blue) : red(red), green(green), blue(blue) {}
+
+	friend bool operator==(Color lhs, Color rhs)
+	{
+		return lhs.red == rhs.red && lhs.green == rhs.green && lhs.blue == rhs.blue;
+	}
+
+	friend bool operator!=(Color lhs, Color rhs) { return !(lhs == rhs); }
 };
 
 std::ostream& operator<<(std::ostream& out, Point p)
@@ -65,6 +88,14 @@ void applyTranslation(ufo::Cloud<Ts...>& cloud, Point const& translation)
 {
 	for (auto e : cloud) {
 		static_cast<Point&>(e) += translation;
+	}
+}
+
+template <class... Ts, std::enable_if_t<(std::is_same_v<Point, Ts> || ...), bool> = true>
+void applyTranslation2(ufo::Cloud<Ts...>& cloud, Point const& translation)
+{
+	for (Point& e : cloud.template get<Point>()) {
+		e += translation;
 	}
 }
 
@@ -130,6 +161,7 @@ TEST_CASE("Cloud")
 	}
 
 	ufo::Cloud<Point, Color> c1(10);
+	ufo::Cloud<Point, Color> c2(10);
 
 	std::cout << "Before" << std::endl;
 	for (auto const& e : c1) {
@@ -137,23 +169,29 @@ TEST_CASE("Cloud")
 	}
 
 	applyTranslation(c1, Point(1, -2, 5));
+	applyTranslation2(c2, Point(1, -2, 5));
 
 	std::cout << "After" << std::endl;
 	for (auto const& e : c1) {
 		std::cout << e << std::endl;
 	}
 
-	ufo::Cloud<Color> c2(5);
+	REQUIRE(c1 == c2);
+
+	BENCHMARK("applyTranslation 1") { applyTranslation(c1, Point(1, -2, 5)); };
+	BENCHMARK("applyTranslation 2") { applyTranslation2(c2, Point(1, -2, 5)); };
+
+	ufo::Cloud<Color> c3(5);
 
 	std::cout << "Before" << std::endl;
-	for (auto const& e : c2) {
+	for (auto const& e : c3) {
 		std::cout << e << std::endl;
 	}
 
-	// applyTranslation(c2, Point(1, -2, 5));
+	// applyTranslation(c3, Point(1, -2, 5));
 
 	std::cout << "After" << std::endl;
-	for (auto const& e : c2) {
+	for (auto const& e : c3) {
 		std::cout << e << std::endl;
 	}
 }
