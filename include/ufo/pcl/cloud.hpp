@@ -955,7 +955,7 @@ std::vector<E> const& get(Cloud<T, Rest...> const& cloud)
 //
 
 template <class T, class... Ts>
-struct contains<T, Cloud<Ts...>> : contains<T, Ts...> {
+struct contains_type<T, Cloud<Ts...>> : contains_type<T, Ts...> {
 };
 }  // namespace ufo
 
