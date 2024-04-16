@@ -86,15 +86,19 @@ std::ostream& operator<<(std::ostream& out, Color c)
 template <class... Ts, std::enable_if_t<(std::is_same_v<Point, Ts> || ...), bool> = true>
 void applyTranslation(ufo::Cloud<Ts...>& cloud, Point const& translation)
 {
-	for (auto e : cloud) {
-		static_cast<Point&>(e) += translation;
+	// for (auto e : cloud) {
+	for (Point& p : cloud) {
+		// e += translation;
+		// e.template get<Point>() += translation;
+		p += translation;
 	}
 }
 
 template <class... Ts, std::enable_if_t<(std::is_same_v<Point, Ts> || ...), bool> = true>
 void applyTranslation2(ufo::Cloud<Ts...>& cloud, Point const& translation)
 {
-	for (Point& e : cloud.template get<Point>()) {
+	// for (Point& e : cloud.template get<Point>()) {
+	for (Point& e : ufo::get<Point>(cloud)) {
 		e += translation;
 	}
 }
@@ -192,6 +196,14 @@ TEST_CASE("Cloud")
 
 	std::cout << "After" << std::endl;
 	for (auto const& e : c3) {
+		std::cout << e << std::endl;
+	}
+
+	ufo::Cloud<Point, Occupancy, Color> c4(3);
+	c4[0] = Color(1.0, 0.0, 0.5);
+
+	std::cout << "Last" << std::endl;
+	for (auto const& e : c4) {
 		std::cout << e << std::endl;
 	}
 }

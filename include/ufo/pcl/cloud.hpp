@@ -66,6 +66,36 @@ class Cloud
 		operator E&() { return static_cast<Derived*>(this)->template get<E>(); }
 
 		operator E*() { return &static_cast<Derived*>(this)->template get<E>(); }
+
+		Derived& operator=(E const& other)
+		{
+			static_cast<Derived*>(this)->template set<E>(other);
+			return *static_cast<Derived*>(this);
+		}
+
+		// Derived& operator+=(E const& other)
+		// {
+		// 	static_cast<Derived*>(this)->template get<E>() += other;
+		// 	return *static_cast<Derived*>(this);
+		// }
+
+		// Derived& operator-=(E const& other)
+		// {
+		// 	static_cast<Derived*>(this)->template get<E>() -= other;
+		// 	return *static_cast<Derived*>(this);
+		// }
+
+		// Derived& operator*=(E const& other)
+		// {
+		// 	static_cast<Derived*>(this)->template get<E>() *= other;
+		// 	return *static_cast<Derived*>(this);
+		// }
+
+		// Derived& operator/=(E const& other)
+		// {
+		// 	static_cast<Derived*>(this)->template get<E>() /= other;
+		// 	return *static_cast<Derived*>(this);
+		// }
 	};
 
  public:
@@ -83,6 +113,12 @@ class Cloud
 		value_type() = default;
 
 		value_type(T const& first, Ts const&... rest) : T(first), Ts(rest)... {}
+
+		using CloudElementConvert<value_type, T>::operator=;
+		using CloudElementConvert<value_type, Ts>::operator=...;
+
+		// using CloudElementConvert<value_type, T>::operator+=;
+		// using CloudElementConvert<value_type, Ts>::operator+=...;
 
 		template <class E>
 		[[nodiscard]] E& get()
@@ -131,6 +167,12 @@ class Cloud
 		using data_type = std::tuple<T&, Ts&...>;
 
 	 public:
+		using CloudElementConvert<value_type_ref, T>::operator=;
+		using CloudElementConvert<value_type_ref, Ts>::operator=...;
+
+		// using CloudElementConvert<value_type_ref, T>::operator+=;
+		// using CloudElementConvert<value_type_ref, Ts>::operator+=...;
+
 		value_type_ref& operator=(value_type const& value) { return set(value); }
 
 		value_type_ref& operator=(value_type_ref const& value) = default;
@@ -886,6 +928,18 @@ class Cloud
  private:
 	data_type data_;
 };
+
+template <class E, class T, class... Ts>
+std::vector<E>& get(Cloud<T, Ts...>& cloud)
+{
+	return cloud.template get<E>();
+}
+
+template <class E, class T, class... Ts>
+std::vector<E> const& get(Cloud<T, Ts...> const& cloud)
+{
+	return cloud.template get<E>();
+}
 }  // namespace ufo
 
 #endif  // UFO_PCL_CLOUD_HPP
