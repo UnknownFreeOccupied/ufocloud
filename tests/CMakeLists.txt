@@ -12,6 +12,11 @@ add_executable(ufopcl_tests
 
 target_link_libraries(ufopcl_tests PRIVATE UFO::PCL Catch2::Catch2WithMain)
 
+# target_compile_options(ufopcl_tests
+# 	PRIVATE
+# 		-march=native
+# )
+
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(CTest)
 include(Catch)

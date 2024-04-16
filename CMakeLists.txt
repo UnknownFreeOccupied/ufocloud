@@ -9,13 +9,13 @@ project(ufopcl
 Include(FetchContent)
 
 FetchContent_Declare(
-  ufomath
-  GIT_REPOSITORY https://github.com/UnknownFreeOccupied/ufomath
+  ufoutility
+  GIT_REPOSITORY https://github.com/UnknownFreeOccupied/ufoutility
   GIT_TAG        main
   GIT_PROGRESS   TRUE
 )
 
-FetchContent_MakeAvailable(ufomath)
+FetchContent_MakeAvailable(ufoutility)
 
 add_library(ufopcl INTERFACE)
 add_library(UFO::PCL ALIAS ufopcl)
@@ -27,7 +27,7 @@ set_target_properties(ufopcl PROPERTIES
 	CXX_EXTENSIONS OFF
 )
 
-target_link_libraries(ufopcl INTERFACE UFO::Math)
+target_link_libraries(ufopcl INTERFACE UFO::Utility)
 
 target_include_directories(ufopcl INTERFACE
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>

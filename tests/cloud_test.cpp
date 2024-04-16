@@ -5,6 +5,33 @@
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+namespace ufo
+{
+template <class T, class... Types>
+struct CloudElement
+    : T
+    , Types... {
+	constexpr CloudElement() = default;
+
+	constexpr CloudElement(T const& t, Types const&... types) : T(t), Types(types)... {}
+
+	constexpr CloudElement(T const& t, CloudElement<Types...> const& ce)
+	    : T(t), Types(ce)...
+	{
+	}
+};
+
+template <class T>
+struct CloudElement<T> {
+	constexpr CloudElement() = default;
+
+	constexpr CloudElement(T const& t) : T(t) {}
+};
+
+template <class... Types>
+using OldCloud = std::vector<CloudElement<Types...>>;
+}  // namespace ufo
+
 struct Point {
 	float x = 0.0;
 	float y = 0.0;
@@ -103,6 +130,15 @@ void applyTranslation2(ufo::Cloud<Ts...>& cloud, Point const& translation)
 	}
 }
 
+template <class... Ts, std::enable_if_t<(std::is_same_v<Point, Ts> || ...), bool> = true>
+void applyTranslation2(ufo::OldCloud<Ts...>& cloud, Point const& translation)
+{
+	// for (Point& e : cloud.template get<Point>()) {
+	for (Point& e : cloud) {
+		e += translation;
+	}
+}
+
 TEST_CASE("Cloud")
 {
 	ufo::Cloud<Occupancy, Color, Point> cloud;
@@ -164,26 +200,29 @@ TEST_CASE("Cloud")
 		std::cout << e << std::endl;
 	}
 
-	ufo::Cloud<Point, Color> c1(10);
-	ufo::Cloud<Point, Color> c2(10);
+	ufo::Cloud<Point, Color>    c1(1000);
+	ufo::Cloud<Point, Color>    c2(1000);
+	ufo::OldCloud<Point, Color> oc(1000);
 
-	std::cout << "Before" << std::endl;
-	for (auto const& e : c1) {
-		std::cout << e << std::endl;
-	}
+	// std::cout << "Before" << std::endl;
+	// for (auto const& e : c1) {
+	// 	std::cout << e << std::endl;
+	// }
 
 	applyTranslation(c1, Point(1, -2, 5));
 	applyTranslation2(c2, Point(1, -2, 5));
+	applyTranslation2(oc, Point(1, -2, 5));
 
-	std::cout << "After" << std::endl;
-	for (auto const& e : c1) {
-		std::cout << e << std::endl;
-	}
+	// std::cout << "After" << std::endl;
+	// for (auto const& e : c1) {
+	// 	std::cout << e << std::endl;
+	// }
 
 	REQUIRE(c1 == c2);
 
 	BENCHMARK("applyTranslation 1") { applyTranslation(c1, Point(1, -2, 5)); };
 	BENCHMARK("applyTranslation 2") { applyTranslation2(c2, Point(1, -2, 5)); };
+	BENCHMARK("old applyTranslation") { applyTranslation2(oc, Point(1, -2, 5)); };
 
 	ufo::Cloud<Color> c3(5);
 
