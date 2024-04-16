@@ -1,5 +1,6 @@
 // UFO
 #include <ufo/pcl/cloud.hpp>
+#include <ufo/utility/type_traits.hpp>
 
 // Catch2
 #include <catch2/benchmark/catch_benchmark.hpp>
@@ -110,7 +111,7 @@ std::ostream& operator<<(std::ostream& out, Color c)
 	return out << "Red: " << c.red << " Green: " << c.green << " Blue: " << c.blue;
 }
 
-template <class... Ts, std::enable_if_t<(std::is_same_v<Point, Ts> || ...), bool> = true>
+template <class... Ts, std::enable_if_t<ufo::contains_v<Point, Ts...>, bool> = true>
 void applyTranslation(ufo::Cloud<Ts...>& cloud, Point const& translation)
 {
 	// for (auto e : cloud) {
@@ -121,7 +122,7 @@ void applyTranslation(ufo::Cloud<Ts...>& cloud, Point const& translation)
 	}
 }
 
-template <class... Ts, std::enable_if_t<(std::is_same_v<Point, Ts> || ...), bool> = true>
+template <class... Ts, std::enable_if_t<ufo::contains_v<Point, Ts...>, bool> = true>
 void applyTranslation2(ufo::Cloud<Ts...>& cloud, Point const& translation)
 {
 	// for (Point& e : cloud.template get<Point>()) {
@@ -130,7 +131,7 @@ void applyTranslation2(ufo::Cloud<Ts...>& cloud, Point const& translation)
 	}
 }
 
-template <class... Ts, std::enable_if_t<(std::is_same_v<Point, Ts> || ...), bool> = true>
+template <class... Ts, std::enable_if_t<ufo::contains_v<Point, Ts...>, bool> = true>
 void applyTranslation2(ufo::OldCloud<Ts...>& cloud, Point const& translation)
 {
 	// for (Point& e : cloud.template get<Point>()) {

@@ -44,6 +44,7 @@
 
 // UFO
 #include <ufo/utility/proxy_arrow_result.hpp>
+#include <ufo/utility/type_traits.hpp>
 
 // STL
 #include <algorithm>
@@ -54,9 +55,11 @@
 
 namespace ufo
 {
-template <class T, class... Ts>
+template <class T, class... Rest>
 class Cloud
 {
+	static_assert(is_unique_v<T, Rest...>);
+
  private:
 	template <class Derived, class E>
 	struct CloudElementConvert {
@@ -102,26 +105,26 @@ class Cloud
 	};
 
  public:
-	using data_type       = std::tuple<std::vector<T>, std::vector<Ts>...>;
+	using data_type       = std::tuple<std::vector<T>, std::vector<Rest>...>;
 	using size_type       = typename std::vector<T>::size_type;
 	using difference_type = typename std::vector<T>::difference_type;
 
 	class value_type
 	    : public T
-	    , public Ts...
+	    , public Rest...
 	    , public CloudElementConvert<value_type, T>
-	    , public CloudElementConvert<value_type, Ts>...
+	    , public CloudElementConvert<value_type, Rest>...
 	{
 	 public:
 		value_type() = default;
 
-		value_type(T const& first, Ts const&... rest) : T(first), Ts(rest)... {}
+		value_type(T const& first, Rest const&... rest) : T(first), Rest(rest)... {}
 
 		using CloudElementConvert<value_type, T>::operator=;
-		using CloudElementConvert<value_type, Ts>::operator=...;
+		using CloudElementConvert<value_type, Rest>::operator=...;
 
 		// using CloudElementConvert<value_type, T>::operator+=;
-		// using CloudElementConvert<value_type, Ts>::operator+=...;
+		// using CloudElementConvert<value_type, Rest>::operator+=...;
 
 		template <class E>
 		[[nodiscard]] E& get()
@@ -154,8 +157,8 @@ class Cloud
 		friend std::ostream& operator<<(std::ostream& out, value_type const& value)
 		{
 			out << value.template get<T>();
-			if constexpr (0 < sizeof...(Ts)) {
-				return ((out << ' ' << value.template get<Ts>()), ...);
+			if constexpr (0 < sizeof...(Rest)) {
+				return ((out << ' ' << value.template get<Rest>()), ...);
 			} else {
 				return out;
 			}
@@ -164,17 +167,17 @@ class Cloud
 
 	class value_type_ref
 	    : public CloudElementConvert<value_type_ref, T>
-	    , public CloudElementConvert<value_type_ref, Ts>...
+	    , public CloudElementConvert<value_type_ref, Rest>...
 	{
 	 private:
-		using data_type = std::tuple<T&, Ts&...>;
+		using data_type = std::tuple<T&, Rest&...>;
 
 	 public:
 		using CloudElementConvert<value_type_ref, T>::operator=;
-		using CloudElementConvert<value_type_ref, Ts>::operator=...;
+		using CloudElementConvert<value_type_ref, Rest>::operator=...;
 
 		// using CloudElementConvert<value_type_ref, T>::operator+=;
-		// using CloudElementConvert<value_type_ref, Ts>::operator+=...;
+		// using CloudElementConvert<value_type_ref, Rest>::operator+=...;
 
 		value_type_ref& operator=(value_type const& value) { return set(value); }
 
@@ -232,15 +235,15 @@ class Cloud
 		friend std::ostream& operator<<(std::ostream& out, value_type_ref const& value)
 		{
 			out << value.template get<T>();
-			if constexpr (0 < sizeof...(Ts)) {
-				return ((out << ' ' << value.template get<Ts>()), ...);
+			if constexpr (0 < sizeof...(Rest)) {
+				return ((out << ' ' << value.template get<Rest>()), ...);
 			} else {
 				return out;
 			}
 		}
 
 	 private:
-		value_type_ref(T& first, Ts&... rest) : data_(first, rest...) {}
+		value_type_ref(T& first, Rest&... rest) : data_(first, rest...) {}
 
 	 private:
 		data_type data_;
@@ -593,14 +596,14 @@ class Cloud
 
 	[[nodiscard]] value_type_ref operator[](std::size_t index)
 	{
-		std::tuple<T&, Ts&...> elements = std::apply(
+		std::tuple<T&, Rest&...> elements = std::apply(
 		    [&elements, index](auto&&... args) { return std::tie(args[index]...); }, data_);
 		return std::apply([](auto&&... args) { return value_type_ref(args...); }, elements);
 	}
 
 	[[nodiscard]] value_type operator[](std::size_t index) const
 	{
-		std::tuple<T const&, Ts const&...> elements = std::apply(
+		std::tuple<T const&, Rest const&...> elements = std::apply(
 		    [&elements, index](auto&&... args) { return std::tie(args[index]...); }, data_);
 		return std::apply([](auto&&... args) { return value_type(args...); }, elements);
 	}
@@ -737,7 +740,7 @@ class Cloud
 		return insert(pos, std::begin(ilist), std::end(ilist));
 	}
 
-	iterator emplace(const_iterator pos, T const& arg, Ts const&... args)
+	iterator emplace(const_iterator pos, T const& arg, Rest const&... args)
 	{
 		std::apply(
 		    [pos, &arg, &args...](auto&&... data) {
@@ -797,7 +800,7 @@ class Cloud
 	{
 		std::apply(
 		    [&args...](auto&&... data) {
-			    std::tuple<T, Ts...> t;
+			    std::tuple<T, Rest...> t;
 			    if constexpr (0 < sizeof...(args)) {
 				    addToTuple<0>(t, std::forward<Args>(args)...);
 			    }
@@ -836,43 +839,43 @@ class Cloud
 
 	// Non-member functions
 
-	friend bool operator==(Cloud<T, Ts...> const& lhs, Cloud<T, Ts...> const& rhs)
+	friend bool operator==(Cloud<T, Rest...> const& lhs, Cloud<T, Rest...> const& rhs)
 	{
 		return lhs.data_ == rhs.data_;
 	}
 
-	friend bool operator!=(Cloud<T, Ts...> const& lhs, Cloud<T, Ts...> const& rhs)
+	friend bool operator!=(Cloud<T, Rest...> const& lhs, Cloud<T, Rest...> const& rhs)
 	{
 		return lhs.data_ != rhs.data_;
 	}
 
-	friend bool operator<(Cloud<T, Ts...> const& lhs, Cloud<T, Ts...> const& rhs)
+	friend bool operator<(Cloud<T, Rest...> const& lhs, Cloud<T, Rest...> const& rhs)
 	{
 		return lhs.data_ < rhs.data_;
 	}
 
-	friend bool operator<=(Cloud<T, Ts...> const& lhs, Cloud<T, Ts...> const& rhs)
+	friend bool operator<=(Cloud<T, Rest...> const& lhs, Cloud<T, Rest...> const& rhs)
 	{
 		return lhs.data_ <= rhs.data_;
 	}
 
-	friend bool operator>(Cloud<T, Ts...> const& lhs, Cloud<T, Ts...> const& rhs)
+	friend bool operator>(Cloud<T, Rest...> const& lhs, Cloud<T, Rest...> const& rhs)
 	{
 		return lhs.data_ > rhs.data_;
 	}
 
-	friend bool operator>=(Cloud<T, Ts...> const& lhs, Cloud<T, Ts...> const& rhs)
+	friend bool operator>=(Cloud<T, Rest...> const& lhs, Cloud<T, Rest...> const& rhs)
 	{
 		return lhs.data_ >= rhs.data_;
 	}
 
-	friend void swap(Cloud<T, Ts...>& lhs,
-	                 Cloud<T, Ts...>& rhs) noexcept(noexcept(lhs.swap(rhs)))
+	friend void swap(Cloud<T, Rest...>& lhs,
+	                 Cloud<T, Rest...>& rhs) noexcept(noexcept(lhs.swap(rhs)))
 	{
 		lhs.swap(rhs);
 	}
 
-	friend size_type erase(Cloud<T, Ts...>& c, value_type const& value)
+	friend size_type erase(Cloud<T, Rest...>& c, value_type const& value)
 	{
 		auto it = std::remove(std::begin(c), std::end(c), value);
 		auto r  = std::end(c) - it;
@@ -881,7 +884,7 @@ class Cloud
 	}
 
 	template <class Pred>
-	friend size_type erase_if(Cloud<T, Ts...>& c, Pred pred)
+	friend size_type erase_if(Cloud<T, Rest...>& c, Pred pred)
 	{
 		auto it = std::remove_if(std::begin(c), std::end(c), pred);
 		auto r  = std::end(c) - it;
@@ -923,7 +926,7 @@ class Cloud
 
  private:
 	template <std::size_t I, class Arg, class... Args>
-	static void addToTuple(std::tuple<T, Ts...>& t, Arg&& first, Args&&... rest)
+	static void addToTuple(std::tuple<T, Rest...>& t, Arg&& first, Args&&... rest)
 	{
 		std::get<I>(t) = std::forward<Arg>(first);
 		if constexpr (0 < sizeof...(rest)) {
@@ -935,17 +938,25 @@ class Cloud
 	data_type data_;
 };
 
-template <class E, class T, class... Ts>
-std::vector<E>& get(Cloud<T, Ts...>& cloud)
+template <class E, class T, class... Rest>
+std::vector<E>& get(Cloud<T, Rest...>& cloud)
 {
 	return cloud.template get<E>();
 }
 
-template <class E, class T, class... Ts>
-std::vector<E> const& get(Cloud<T, Ts...> const& cloud)
+template <class E, class T, class... Rest>
+std::vector<E> const& get(Cloud<T, Rest...> const& cloud)
 {
 	return cloud.template get<E>();
 }
+
+//
+// Type traits
+//
+
+template <class T, class... Ts>
+struct contains<T, Cloud<Ts...>> : contains<T, Ts...> {
+};
 }  // namespace ufo
 
 #endif  // UFO_PCL_CLOUD_HPP
