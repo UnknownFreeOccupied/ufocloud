@@ -42,6 +42,9 @@
 #ifndef UFO_PCL_CLOUD_HPP
 #define UFO_PCL_CLOUD_HPP
 
+// UFO
+#include <ufo/utility/proxy_arrow_result.hpp>
+
 // STL
 #include <algorithm>
 #include <iostream>
@@ -251,9 +254,9 @@ class Cloud
 		// Tags
 		using iterator_category = std::random_access_iterator_tag;
 		using difference_type   = std::ptrdiff_t;
-		using value_type        = value_type_ref;
-		using pointer           = void;  // TODO: What should this be?
-		using reference         = value_type_ref;
+		using value_type        = Cloud::value_type_ref;
+		using reference         = value_type;
+		using pointer           = proxy_arrow_result<reference>;
 
 	 public:
 		constexpr iterator& operator++()
@@ -315,6 +318,8 @@ class Cloud
 
 		[[nodiscard]] constexpr reference operator*() const { return operator[](0); }
 
+		[[nodiscard]] constexpr pointer operator->() const { return **this; }
+
 		constexpr difference_type operator-(iterator const& rhs) const
 		{
 			return index_ - rhs.index_;
@@ -367,9 +372,10 @@ class Cloud
 		// Tags
 		using iterator_category = std::random_access_iterator_tag;
 		using difference_type   = std::ptrdiff_t;
-		using value_type        = Cloud::value_type_ref;
-		using pointer           = void;  // TODO: What should this be?
-		using reference         = Cloud::value_type;
+		// FIXME: Should be a const Cloud::value_type_ref
+		using value_type = Cloud::value_type;
+		using reference  = value_type;
+		using pointer    = proxy_arrow_result<reference>;
 
 	 public:
 		const_iterator() = default;
@@ -441,6 +447,8 @@ class Cloud
 		}
 
 		[[nodiscard]] constexpr reference operator*() const { return operator[](0); }
+
+		[[nodiscard]] constexpr pointer operator->() const { return **this; }
 
 		constexpr difference_type operator-(const_iterator const& rhs) const
 		{
