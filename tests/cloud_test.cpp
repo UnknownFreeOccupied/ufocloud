@@ -213,6 +213,9 @@ TEST_CASE("Cloud")
 	applyTranslation2(c2, Point(1, -2, 5));
 	applyTranslation2(oc, Point(1, -2, 5));
 
+	REQUIRE(c1.max_size() == c2.max_size());
+	REQUIRE(c1.capacity() == c2.capacity());
+
 	// std::cout << "After" << std::endl;
 	// for (auto const& e : c1) {
 	// 	std::cout << e << std::endl;

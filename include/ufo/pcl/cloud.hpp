@@ -653,8 +653,8 @@ class Cloud
 
 	[[nodiscard]] std::size_t max_size() const noexcept
 	{
-		// TODO: Min of all
-		return std::get<0>(data_).max_size();
+		return std::apply([](auto&&... data) { return std::min({data.max_size()...}); },
+		                  data_);
 	}
 
 	void reserve(std::size_t new_cap)
@@ -664,8 +664,8 @@ class Cloud
 
 	[[nodiscard]] std::size_t capacity() const noexcept
 	{
-		// TODO: Min of all
-		return std::get<0>(data_).capacity();
+		return std::apply([](auto&&... data) { return std::min({data.capacity()...}); },
+		                  data_);
 	}
 
 	void shrink_to_fit()
@@ -677,8 +677,6 @@ class Cloud
 	{
 		std::apply([](auto... data) { (data.clear(), ...); }, data_);
 	}
-
-	// TODO: insert
 
 	iterator insert(const_iterator pos, value_type const& value)
 	{
