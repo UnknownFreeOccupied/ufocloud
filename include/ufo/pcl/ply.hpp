@@ -61,7 +61,7 @@ namespace ufo
 namespace detail
 {
 template <class... T>
-void readCloudPly(happly::PLYData& ply, Cloud<T...>& cloud)
+void readCloudPLY(happly::PLYData& ply, Cloud<T...>& cloud)
 {
 	cloud.clear();
 
@@ -125,32 +125,32 @@ void readCloudPly(happly::PLYData& ply, Cloud<T...>& cloud)
 }  // namespace detail
 
 template <class... T>
-void readCloudPly(std::filesystem::path const& file, Cloud<T...>& cloud)
+void readCloudPLY(std::filesystem::path const& file, Cloud<T...>& cloud)
 {
 	happly::PLYData ply(file);
-	detail::readCloudPly(ply, cloud);
+	detail::readCloudPLY(ply, cloud);
 }
 
 template <class... T>
-void readCloudPly(std::istream& in, Cloud<T...>& cloud)
+void readCloudPLY(std::istream& in, Cloud<T...>& cloud)
 {
 	happly::PLYData ply(in);
-	detail::readCloudPly(ply, cloud);
+	detail::readCloudPLY(ply, cloud);
 }
 
 template <class... T>
-void writeCloudPly(std::filesystem::path const& file, Cloud<T...> const& cloud)
+void writeCloudPLY(std::filesystem::path const& file, Cloud<T...> const& cloud)
 {
 	std::ofstream ofs;
-	ofs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
 	ofs.imbue(std::locale());
 	ofs.open(file, std::ios::out | std::ios::binary);
 
-	writeCloudPly(ofs, cloud);
+	writeCloudPLY(ofs, cloud);
 }
 
 template <class... T>
-void writeCloudPly(std::ostream& out, Cloud<T...> const& cloud)
+void writeCloudPLY(std::ostream& out, Cloud<T...> const& cloud)
 {
 }
 }  // namespace ufo
