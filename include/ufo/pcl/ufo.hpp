@@ -199,6 +199,9 @@ void readCloudUFO(std::istream& in, Cloud<T...>& cloud)
 	while (std::getline(in, line) && in.good()) {
 		std::stringstream ss(line);
 		ss >> num_elements >> element_size >> type;
+
+		// TODO: Add checks that cloud contains the data fields
+
 		if ("vec3f" == type) {
 			max_num_elements = std::max(max_num_elements, num_elements);
 
