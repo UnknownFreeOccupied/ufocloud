@@ -138,6 +138,20 @@ class Cloud
 			return static_cast<std::decay_t<E> const&>(*this);
 		}
 
+		template <std::size_t I>
+		[[nodiscard]] auto& get()
+		{
+			// TODO: Implement
+			// return static_cast<std::decay_t<E>&>(*this);
+		}
+
+		template <std::size_t I>
+		[[nodiscard]] auto const& get() const
+		{
+			// TODO: Implement
+			// return static_cast<std::decay_t<E> const&>(*this);
+		}
+
 		template <class E, class Arg>
 		E& set(Arg&& arg)
 		{
@@ -151,6 +165,22 @@ class Cloud
 		{
 			E& e = get<E>();
 			e    = E(std::forward<Args>(args)...);
+			return e;
+		}
+
+		template <std::size_t I, class Arg>
+		auto& set(Arg&& arg)
+		{
+			auto& e = get<I>();
+			e       = std::forward<Arg>(arg);
+			return e;
+		}
+
+		template <std::size_t I, class... Args>
+		auto& set(Args&&... args)
+		{
+			auto& e = get<I>();
+			e       = std::decay_t<decltype(e)>(std::forward<Args>(args)...);
 			return e;
 		}
 
@@ -200,6 +230,18 @@ class Cloud
 			return std::get<E&>(data_);
 		}
 
+		template <std::size_t I>
+		[[nodiscard]] auto& get()
+		{
+			return std::get<I>(data_);
+		}
+
+		template <std::size_t I>
+		[[nodiscard]] auto const& get() const
+		{
+			return std::get<I>(data_);
+		}
+
 		template <class E, class Arg>
 		E& set(Arg&& arg)
 		{
@@ -213,6 +255,22 @@ class Cloud
 		{
 			E& e = get<E>();
 			e    = E(std::forward<Args>(args)...);
+			return e;
+		}
+
+		template <std::size_t I, class Arg>
+		auto& set(Arg&& arg)
+		{
+			auto& e = get<I>();
+			e       = std::forward<Arg>(arg);
+			return e;
+		}
+
+		template <std::size_t I, class... Args>
+		auto& set(Args&&... args)
+		{
+			auto& e = get<I>();
+			e       = std::decay_t<decltype(e)>(std::forward<Args>(args)...);
 			return e;
 		}
 
@@ -912,6 +970,18 @@ class Cloud
 		return std::get<std::vector<std::decay_t<E>>>(data_);
 	}
 
+	template <std::size_t I>
+	auto& get()
+	{
+		return std::get<I>(data_);
+	}
+
+	template <std::size_t I>
+	auto const& get() const
+	{
+		return std::get<I>(data_);
+	}
+
 	template <class E>
 	auto data()
 	{
@@ -948,6 +1018,18 @@ template <class E, class T, class... Rest>
 std::vector<E> const& get(Cloud<T, Rest...> const& cloud)
 {
 	return cloud.template get<E>();
+}
+
+template <std::size_t I, class T, class... Rest>
+auto& get(Cloud<T, Rest...>& cloud)
+{
+	return cloud.template get<I>();
+}
+
+template <std::size_t I, class T, class... Rest>
+auto const& get(Cloud<T, Rest...> const& cloud)
+{
+	return cloud.template get<I>();
 }
 
 //
