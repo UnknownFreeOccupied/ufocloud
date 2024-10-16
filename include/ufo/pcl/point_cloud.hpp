@@ -67,7 +67,7 @@ template <std::size_t Dim, class T, class... Rest>
 [[nodiscard]] PointCloud<Dim, T, Rest...> transform(Transform<Dim, T> const&    t,
                                                     PointCloud<Dim, T, Rest...> pc)
 {
-	return transformInPlace(execution::seq, t, pc);
+	return transform(execution::seq, t, pc);
 }
 
 template <
@@ -100,6 +100,36 @@ void transformInPlace(ExecutionPolicy&& policy, Transform<Dim, T> const& t,
 // Filter
 //
 
+template <std::size_t Dim, class T, class... Rest>
+[[nodiscard]] PointCloud<Dim, T, Rest...> filterDistance(PointCloud<Dim, T, Rest...> pc,
+                                                         Vec<Dim, T> const& origin,
+                                                         T const&           min_distance,
+                                                         T const&           max_distance)
+{
+	return filterDistance(execution::seq, pc, origin, min_distance, max_distance);
+}
+
+template <
+    class ExecutionPolicy, std::size_t Dim, class T, class... Rest,
+    std::enable_if_t<execution::is_execution_policy_v<ExecutionPolicy>, bool> = true>
+[[nodiscard]] PointCloud<Dim, T, Rest...> filterDistance(ExecutionPolicy&& policy,
+                                                         PointCloud<Dim, T, Rest...> pc,
+                                                         Vec<Dim, T> const& origin,
+                                                         T const&           min_distance,
+                                                         T const&           max_distance)
+{
+	filterDistanceInPlace(std::forward<ExecutionPolicy>(policy), pc, origin, min_distance,
+	                      max_distance);
+	return pc;
+}
+
+template <std::size_t Dim, class T, class... Rest>
+void filterDistanceInPlace(PointCloud<Dim, T, Rest...>& pc, Vec<Dim, T> const& origin,
+                           T const& min_distance, T const& max_distance)
+{
+	filterDistanceInPlace(execution::seq, pc, origin, min_distance, max_distance);
+}
+
 template <
     class ExecutionPolicy, std::size_t Dim, class T, class... Rest,
     std::enable_if_t<execution::is_execution_policy_v<ExecutionPolicy>, bool> = true>
@@ -114,21 +144,23 @@ void filterDistanceInPlace(ExecutionPolicy&& policy, PointCloud<Dim, T, Rest...>
 	auto const min_sq = min_distance * min_distance;
 	auto const max_sq = max_distance * max_distance;
 
-	if constexpr (execution::is_seq_v<ExecutionPolicy>) {
-		auto it =
-		    std::remove_if(pc.begin(), pc.end(), [&origin, &min_sq, &max_sq](Vec<Dim, T> x) {
-			    auto dist_sq = distanceSquared(origin, x);
-			    return min_sq > dist_sq || max_sq < dist_sq;
-		    });
-		pc.erase(it, pc.end());
-	} else if constexpr (execution::is_tbb_v<ExecutionPolicy>) {
-		auto it = std::remove_if(UFO_TBB_PAR pc.begin(), pc.end(),
-		                         [&origin, &min_sq, &max_sq](Vec<Dim, T> x) {
-			                         auto dist_sq = distanceSquared(origin, x);
-			                         return min_sq > dist_sq || max_sq < dist_sq;
-		                         });
-		pc.erase(it, pc.end());
-	}
+	// TODO: Implement
+
+	// if constexpr (execution::is_seq_v<ExecutionPolicy>) {
+	auto it =
+	    std::remove_if(pc.begin(), pc.end(), [&origin, &min_sq, &max_sq](Vec<Dim, T> x) {
+		    auto dist_sq = distanceSquared(origin, x);
+		    return min_sq > dist_sq || max_sq < dist_sq;
+	    });
+	pc.erase(it, pc.end());
+	// } else if constexpr (execution::is_tbb_v<ExecutionPolicy>) {
+	// 	auto it = std::remove_if(UFO_TBB_PAR pc.begin(), pc.end(),
+	// 	                         [&origin, &min_sq, &max_sq](Vec<Dim, T> x) {
+	// 		                         auto dist_sq = distanceSquared(origin, x);
+	// 		                         return min_sq > dist_sq || max_sq < dist_sq;
+	// 	                         });
+	// 	pc.erase(it, pc.end());
+	// }
 }
 }  // namespace ufo
 
