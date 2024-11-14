@@ -43,6 +43,7 @@
 #define UFO_PCL_UFO_HPP
 
 // UFO
+#include <ufo/math/transform.hpp>
 #include <ufo/math/vec.hpp>
 #include <ufo/pcl/cloud.hpp>
 #include <ufo/utility/execution.hpp>
@@ -214,6 +215,75 @@ void readCloudUFO(std::istream& in, Cloud<T...>& cloud)
 			auto& data = get<Color>(cloud);
 			data.resize(num_elements);
 			in.read(reinterpret_cast<char*>(data.data()), num_elements * element_size);
+
+			// TODO: Remove
+			// for (auto& c : get<Color>(cloud)) {
+			// 	std::swap(c.alpha, c.red);
+			// 	std::swap(c.green, c.blue);
+			// }
+		} else {
+			in.seekg(num_elements * element_size, std::ios::cur);
+		}
+	}
+
+	(get<T>(cloud).resize(max_num_elements), ...);
+}
+
+template <class... T, std::size_t Dim, class T2>
+void readCloudUFO(std::filesystem::path const& file, Cloud<T...>& cloud,
+                  Transform<Dim, T2>& pose)
+{
+	std::ifstream ifs;
+	ifs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	ifs.imbue(std::locale());
+	ifs.open(file, std::ios::in | std::ios::binary);
+
+	readCloudUFO(ifs, cloud, pose);
+
+	ifs.close();
+}
+
+template <class... T, std::size_t Dim, class T2>
+void readCloudUFO(std::istream& in, Cloud<T...>& cloud, Transform<Dim, T2>& pose)
+{
+	std::string line;
+	std::getline(in, line);
+	if ("# UFO cloud file" != line) {
+		return;
+	}
+
+	std::size_t num_elements;
+	std::size_t element_size;
+	std::string type;
+
+	std::size_t max_num_elements{};
+
+	while (std::getline(in, line) && in.good()) {
+		std::stringstream ss(line);
+		ss >> num_elements >> element_size >> type;
+
+		// TODO: Add checks that cloud contains the data fields
+
+		if ("pose" == type) {
+			in.read(reinterpret_cast<char*>(&pose), num_elements * element_size);
+		} else if ("vec3f" == type) {
+			max_num_elements = std::max(max_num_elements, num_elements);
+
+			auto& data = get<Vec3f>(cloud);
+			data.resize(num_elements);
+			in.read(reinterpret_cast<char*>(data.data()), num_elements * element_size);
+		} else if ("color" == type) {
+			max_num_elements = std::max(max_num_elements, num_elements);
+
+			auto& data = get<Color>(cloud);
+			data.resize(num_elements);
+			in.read(reinterpret_cast<char*>(data.data()), num_elements * element_size);
+
+			// TODO: Remove
+			// for (auto& c : get<Color>(cloud)) {
+			// 	std::swap(c.alpha, c.red);
+			// 	std::swap(c.green, c.blue);
+			// }
 		} else {
 			in.seekg(num_elements * element_size, std::ios::cur);
 		}
@@ -239,6 +309,34 @@ template <class... T>
 void writeCloudUFO(std::ostream& out, Cloud<T...> const& cloud)
 {
 	out << "# UFO cloud file\n";
+
+	(detail::writeCloudUFO<T>(out, cloud), ...);
+
+	out << "# end";
+}
+
+template <class... T, std::size_t Dim, class T2>
+void writeCloudUFO(std::filesystem::path const& file, Cloud<T...> const& cloud,
+                   Transform<Dim, T2> const& pose)
+{
+	std::ofstream ofs;
+	ofs.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+	ofs.imbue(std::locale());
+	ofs.open(file, std::ios::out | std::ios::binary);
+
+	writeCloudUFO(ofs, cloud, pose);
+
+	ofs.close();
+}
+
+template <class... T, std::size_t Dim, class T2>
+void writeCloudUFO(std::ostream& out, Cloud<T...> const& cloud,
+                   Transform<Dim, T2> const& pose)
+{
+	out << "# UFO cloud file\n";
+
+	out << "1 " << sizeof(pose) << " pose\n";
+	out.write(reinterpret_cast<char const*>(&pose), sizeof(pose));
 
 	(detail::writeCloudUFO<T>(out, cloud), ...);
 
