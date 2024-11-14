@@ -6,35 +6,26 @@ project(ufopcl
 	LANGUAGES CXX
 )
 
-Include(FetchContent)
+add_subdirectory(1stparty)
 
-FetchContent_Declare(
-  ufoutility
-  GIT_REPOSITORY https://github.com/UnknownFreeOccupied/ufoutility
-  GIT_TAG        main
-  GIT_PROGRESS   TRUE
-)
+add_library(Cloud INTERFACE)
+add_library(UFO::Cloud ALIAS Cloud)
 
-FetchContent_MakeAvailable(ufoutility)
-
-add_library(ufopcl INTERFACE)
-add_library(UFO::PCL ALIAS ufopcl)
-
-set_target_properties(ufopcl PROPERTIES
+set_target_properties(Cloud PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	CXX_STANDARD 17
 	CXX_EXTENSIONS OFF
 )
 
-target_link_libraries(ufopcl INTERFACE UFO::Utility)
+target_link_libraries(Cloud INTERFACE UFO::Utility)
 
-target_include_directories(ufopcl INTERFACE
+target_include_directories(Cloud INTERFACE
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(ufopcl INTERFACE cxx_std_17)
+target_compile_features(Cloud INTERFACE cxx_std_17)
 
 include(GNUInstallDirs)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
@@ -46,7 +37,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   add_subdirectory(tests)
 endif()
 
-install(TARGETS ufopcl
+install(TARGETS Cloud
 	EXPORT ufopclTargets
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
