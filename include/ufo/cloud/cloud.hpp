@@ -39,8 +39,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_PCL_CLOUD_HPP
-#define UFO_PCL_CLOUD_HPP
+#ifndef UFO_CLOUD_CLOUD_HPP
+#define UFO_CLOUD_CLOUD_HPP
 
 // UFO
 #include <ufo/utility/proxy_arrow_result.hpp>
@@ -1041,4 +1041,4 @@ struct contains_type<T, Cloud<Ts...>> : contains_type<T, Ts...> {
 };
 }  // namespace ufo
 
-#endif  // UFO_PCL_CLOUD_HPP
+#endif  // UFO_CLOUD_CLOUD_HPP

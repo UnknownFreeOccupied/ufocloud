@@ -39,12 +39,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_PCL_PLY_HPP
-#define UFO_PCL_PLY_HPP
+#ifndef UFO_CLOUD_PLY_HPP
+#define UFO_CLOUD_PLY_HPP
 
 // UFO
 #include <ufo/math/vec.hpp>
-#include <ufo/pcl/cloud.hpp>
+#include <ufo/cloud/cloud.hpp>
 #include <ufo/vision/color.hpp>
 
 // Happly
@@ -155,4 +155,4 @@ void writeCloudPLY(std::ostream& out, Cloud<T...> const& cloud)
 }
 }  // namespace ufo
 
-#endif  // UFO_PCL_PLY_HPP
+#endif  // UFO_CLOUD_PLY_HPP

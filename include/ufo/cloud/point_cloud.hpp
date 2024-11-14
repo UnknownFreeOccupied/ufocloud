@@ -39,14 +39,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_PCL_POINT_CLOUD_HPP
-#define UFO_PCL_POINT_CLOUD_HPP
+#ifndef UFO_CLOUD_POINT_CLOUD_HPP
+#define UFO_CLOUD_POINT_CLOUD_HPP
 
 // UFO
 // TODO: Add dependency on ufomath
 #include <ufo/math/transform.hpp>
 #include <ufo/math/vec.hpp>
-#include <ufo/pcl/cloud.hpp>
+#include <ufo/cloud/cloud.hpp>
 // TODO: Add dependency on ufoutility
 #include <ufo/utility/execution.hpp>
 
@@ -164,4 +164,4 @@ void filterDistanceInPlace(ExecutionPolicy&& policy, PointCloud<Dim, T, Rest...>
 }
 }  // namespace ufo
 
-#endif  // UFO_PCL_POINT_CLOUD_HPP
+#endif  // UFO_CLOUD_POINT_CLOUD_HPP

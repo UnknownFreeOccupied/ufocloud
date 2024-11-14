@@ -39,13 +39,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_PCL_UFO_HPP
-#define UFO_PCL_UFO_HPP
+#ifndef UFO_CLOUD_UFO_HPP
+#define UFO_CLOUD_UFO_HPP
 
 // UFO
 #include <ufo/math/transform.hpp>
 #include <ufo/math/vec.hpp>
-#include <ufo/pcl/cloud.hpp>
+#include <ufo/cloud/cloud.hpp>
 #include <ufo/utility/execution.hpp>
 #include <ufo/vision/color.hpp>
 
@@ -344,4 +344,4 @@ void writeCloudUFO(std::ostream& out, Cloud<T...> const& cloud,
 }
 }  // namespace ufo
 
-#endif  // UFO_PCL_UFO_HPP
+#endif  // UFO_CLOUD_UFO_HPP

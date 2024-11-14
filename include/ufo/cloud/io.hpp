@@ -39,12 +39,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_PCL_IO_HPP
-#define UFO_PCL_IO_HPP
+#ifndef UFO_CLOUD_IO_HPP
+#define UFO_CLOUD_IO_HPP
 
 // UFO
-#include <ufo/pcl/cloud.hpp>
-#include <ufo/pcl/ply.hpp>
+#include <ufo/cloud/cloud.hpp>
+#include <ufo/cloud/ply.hpp>
 
 // STL
 #include <filesystem>
@@ -68,4 +68,4 @@ void writeCloud(std::filesystem::path const& file, Cloud<T...> const& cloud)
 }
 }  // namespace ufo
 
-#endif  // UFO_PCL_IO_HPP
+#endif  // UFO_CLOUD_IO_HPP
