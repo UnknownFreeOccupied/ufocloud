@@ -1,5 +1,5 @@
 // UFO
-#include <ufo/pcl/cloud.hpp>
+#include <ufo/cloud/cloud.hpp>
 #include <ufo/utility/type_traits.hpp>
 
 // Catch2
