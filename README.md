@@ -1,2 +1,2 @@
-# UFOPCL
-The UFO point cloud library
+# UFOCloud
+The UFO cloud library
