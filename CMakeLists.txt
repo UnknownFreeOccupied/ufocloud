@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.5...3.16)
 
-project(ufopcl
+project(ufocloud
 	VERSION 2.0.0
-	DESCRIPTION "The UFO pcl library"
+	DESCRIPTION "The UFO cloud library"
 	LANGUAGES CXX
 )
 
@@ -38,35 +38,35 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 endif()
 
 install(TARGETS Cloud
-	EXPORT ufopclTargets
+	EXPORT ufocloudTargets
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-install(EXPORT ufopclTargets
-	FILE "ufopclTargets.cmake"
+install(EXPORT ufocloudTargets
+	FILE "ufocloudTargets.cmake"
 	NAMESPACE UFO::
 	DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
-	"${PROJECT_SOURCE_DIR}/cmake/ufopclConfig.cmake.in"
-	"${CMAKE_CURRENT_BINARY_DIR}/ufopclConfig.cmake"
+	"${PROJECT_SOURCE_DIR}/cmake/ufocloudConfig.cmake.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/ufocloudConfig.cmake"
 	INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
 write_basic_package_version_file(
-	"${CMAKE_CURRENT_BINARY_DIR}/ufopclConfigVersion.cmake"
+	"${CMAKE_CURRENT_BINARY_DIR}/ufocloudConfigVersion.cmake"
 	VERSION ${PROJECT_VERSION}
 	COMPATIBILITY SameMajorVersion
 )
 
 INSTALL(
 	FILES
-	"${CMAKE_CURRENT_BINARY_DIR}/ufopclConfig.cmake"
-	"${CMAKE_CURRENT_BINARY_DIR}/ufopclConfigVersion.cmake"
+	"${CMAKE_CURRENT_BINARY_DIR}/ufocloudConfig.cmake"
+	"${CMAKE_CURRENT_BINARY_DIR}/ufocloudConfigVersion.cmake"
 	DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
