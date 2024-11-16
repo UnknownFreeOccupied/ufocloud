@@ -1,76 +1,68 @@
-cmake_minimum_required(VERSION 3.5...3.16)
-
-project(ufocloud
-	VERSION 2.0.0
-	DESCRIPTION "The UFO cloud library"
-	LANGUAGES CXX
-)
-
-add_subdirectory(1stparty)
-
 add_library(Cloud INTERFACE)
 add_library(UFO::Cloud ALIAS Cloud)
 
-set_target_properties(Cloud PROPERTIES
-	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR}
-	CXX_STANDARD 17
-	CXX_EXTENSIONS OFF
-)
-
 target_link_libraries(Cloud INTERFACE UFO::Utility)
 
-target_include_directories(Cloud INTERFACE
-	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-	$<INSTALL_INTERFACE:include>
+set_target_properties(Cloud PROPERTIES
+	INTERFACE_VERSION ${PROJECT_VERSION}
+	INTERFACE_SOVERSION ${PROJECT_VERSION_MAJOR}
+	INTERFACE_CXX_STANDARD 17
+	INTERFACE_CXX_EXTENSIONS OFF
 )
-
-target_compile_features(Cloud INTERFACE cxx_std_17)
 
 include(GNUInstallDirs)
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+
+target_include_directories(Cloud 
+	INTERFACE
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+		$<INSTALL_INTERFACE:include>
 )
 
-# Only enable tests when we're the root project
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+if(UFO_TESTING)
   add_subdirectory(tests)
 endif()
 
-install(TARGETS Cloud
-	EXPORT ufocloudTargets
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+if(UFO_DOCS)
+	add_subdirectory(docs)
+endif()
+
+install(TARGETS Cloud EXPORT Cloud-targets
+	COMPONENT Cloud
+	LIBRARY  DESTINATION lib
+	ARCHIVE  DESTINATION lib
+	RUNTIME  DESTINATION bin
+  INCLUDES DESTINATION include
 )
 
-install(EXPORT ufocloudTargets
-	FILE "ufocloudTargets.cmake"
-	NAMESPACE UFO::
-	DESTINATION lib/cmake/${PROJECT_NAME}
+install(EXPORT Cloud-targets
+  FILE "Cloud-targets.cmake"
+  NAMESPACE UFO::
+  DESTINATION lib/cmake/${PROJECT_NAME}
+	COMPONENT Cloud
 )
 
 include(CMakePackageConfigHelpers)
-configure_package_config_file(
-	"${PROJECT_SOURCE_DIR}/cmake/ufocloudConfig.cmake.in"
-	"${CMAKE_CURRENT_BINARY_DIR}/ufocloudConfig.cmake"
-	INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
-)
-
 write_basic_package_version_file(
-	"${CMAKE_CURRENT_BINARY_DIR}/ufocloudConfigVersion.cmake"
+	"${CMAKE_CURRENT_BINARY_DIR}/Cloud-config-version.cmake"
 	VERSION ${PROJECT_VERSION}
 	COMPATIBILITY SameMajorVersion
 )
 
-INSTALL(
-	FILES
-	"${CMAKE_CURRENT_BINARY_DIR}/ufocloudConfig.cmake"
-	"${CMAKE_CURRENT_BINARY_DIR}/ufocloudConfigVersion.cmake"
-	DESTINATION lib/cmake/${PROJECT_NAME}
+configure_package_config_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/Cloud-config.cmake.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/Cloud-config.cmake"
+	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
 
 install(
-	DIRECTORY ${PROJECT_SOURCE_DIR}/include/
-	DESTINATION include
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/Cloud-config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/Cloud-config-version.cmake"
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+  COMPONENT Cloud
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+	COMPONENT Cloud
+	DESTINATION ${CMAKE_INSTALL_PREFIX}
 )

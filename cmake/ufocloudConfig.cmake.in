@@ -1,8 +1,0 @@
-@PACKAGE_INIT@
-
-include(CMakeFindDependencyMacro)
-find_dependency(ufoutility)
-
-include("${CMAKE_CURRENT_LIST_DIR}/ufocloudTargets.cmake")
-
-check_required_components("ufocloud")
