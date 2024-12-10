@@ -1,3 +1,7 @@
+option(UFO_CLOUD_DOCS     "Generate documentation" OFF)
+option(UFO_CLOUD_TESTING  "Unit testing"           OFF)
+option(UFO_CLOUD_COVERAGE "Test Coverage"          OFF)
+
 add_library(Cloud INTERFACE)
 add_library(UFO::Cloud ALIAS Cloud)
 
@@ -14,11 +18,11 @@ target_include_directories(Cloud
 		$<INSTALL_INTERFACE:include>
 )
 
-if(UFO_TESTING)
+if(UFO_TESTING OR UFO_CLOUD_TESTING)
   add_subdirectory(tests)
 endif()
 
-if(UFO_DOCS)
+if(UFO_DOCS OR UFO_CLOUD_DOCS)
 	add_subdirectory(docs)
 endif()
 
