@@ -44,15 +44,16 @@
 
 // UFO
 // TODO: Add dependency on ufomath
+#include <ufo/cloud/cloud.hpp>
 #include <ufo/math/transform.hpp>
 #include <ufo/math/vec.hpp>
-#include <ufo/cloud/cloud.hpp>
 // TODO: Add dependency on ufoutility
-#include <ufo/utility/execution.hpp>
+#include <ufo/execution/execution.hpp>
 
 // STL
 #include <cstddef>
 #include <limits>
+#include <type_traits>
 
 namespace ufo
 {
