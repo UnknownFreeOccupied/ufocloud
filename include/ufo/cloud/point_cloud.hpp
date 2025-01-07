@@ -68,6 +68,7 @@ template <std::size_t Dim, class T, class... Rest>
 [[nodiscard]] PointCloud<Dim, T, Rest...> transform(Transform<Dim, T> const&    t,
                                                     PointCloud<Dim, T, Rest...> pc)
 {
+	// TODO: Implement
 	return transform(execution::seq, t, pc);
 }
 
@@ -85,6 +86,7 @@ template <
 template <std::size_t Dim, class T, class... Rest>
 void transformInPlace(Transform<Dim, T> const& t, PointCloud<Dim, T, Rest...>& pc)
 {
+	// TODO: Implement
 	transformInPlace(execution::seq, t, pc);
 }
 
@@ -107,6 +109,7 @@ template <std::size_t Dim, class T, class... Rest>
                                                          T const&           min_distance,
                                                          T const&           max_distance)
 {
+	// TODO: Implement
 	return filterDistance(execution::seq, pc, origin, min_distance, max_distance);
 }
 
@@ -128,6 +131,7 @@ template <std::size_t Dim, class T, class... Rest>
 void filterDistanceInPlace(PointCloud<Dim, T, Rest...>& pc, Vec<Dim, T> const& origin,
                            T const& min_distance, T const& max_distance)
 {
+	// TODO: Implement
 	filterDistanceInPlace(execution::seq, pc, origin, min_distance, max_distance);
 }
 
