@@ -129,27 +129,27 @@ class Cloud
 		template <class E>
 		[[nodiscard]] E& get()
 		{
-			return static_cast<std::decay_t<E>&>(*this);
+			return static_cast<remove_cvref_t<E>&>(*this);
 		}
 
 		template <class E>
 		[[nodiscard]] E const& get() const
 		{
-			return static_cast<std::decay_t<E> const&>(*this);
+			return static_cast<remove_cvref_t<E> const&>(*this);
 		}
 
 		template <std::size_t I>
 		[[nodiscard]] auto& get()
 		{
 			// TODO: Implement
-			// return static_cast<std::decay_t<E>&>(*this);
+			// return static_cast<remove_cvref_t<E>&>(*this);
 		}
 
 		template <std::size_t I>
 		[[nodiscard]] auto const& get() const
 		{
 			// TODO: Implement
-			// return static_cast<std::decay_t<E> const&>(*this);
+			// return static_cast<remove_cvref_t<E> const&>(*this);
 		}
 
 		template <class E, class Arg>
@@ -180,7 +180,7 @@ class Cloud
 		auto& set(Args&&... args)
 		{
 			auto& e = get<I>();
-			e       = std::decay_t<decltype(e)>(std::forward<Args>(args)...);
+			e       = remove_cvref_t<decltype(e)>(std::forward<Args>(args)...);
 			return e;
 		}
 
@@ -270,7 +270,7 @@ class Cloud
 		auto& set(Args&&... args)
 		{
 			auto& e = get<I>();
-			e       = std::decay_t<decltype(e)>(std::forward<Args>(args)...);
+			e       = remove_cvref_t<decltype(e)>(std::forward<Args>(args)...);
 			return e;
 		}
 
@@ -567,7 +567,7 @@ class Cloud
 	{
 		std::apply(
 		    [count, &value](auto&&... data) {
-			    ((data = std::decay_t<decltype(data)>(count, value)), ...);
+			    ((data = remove_cvref_t<decltype(data)>(count, value)), ...);
 		    },
 		    data_);
 	}
@@ -575,7 +575,9 @@ class Cloud
 	explicit Cloud(size_type count)
 	{
 		std::apply(
-		    [count](auto&&... data) { ((data = std::decay_t<decltype(data)>(count)), ...); },
+		    [count](auto&&... data) {
+			    ((data = remove_cvref_t<decltype(data)>(count)), ...);
+		    },
 		    data_);
 	}
 
@@ -708,6 +710,82 @@ class Cloud
 
 	[[nodiscard]] const_reverse_iterator crend() const { return rend(); }
 
+	// FIXME: Added below
+
+	template <class E>
+	[[nodiscard]] auto begin()
+	{
+		return get<E>().begin();
+	}
+
+	template <class E>
+	[[nodiscard]] auto begin() const
+	{
+		return get<E>().begin();
+	}
+
+	template <class E>
+	[[nodiscard]] auto cbegin() const
+	{
+		return begin<E>();
+	}
+
+	template <class E>
+	[[nodiscard]] auto end()
+	{
+		return get<E>().end();
+	}
+
+	template <class E>
+	[[nodiscard]] auto end() const
+	{
+		return get<E>().end();
+	}
+
+	template <class E>
+	[[nodiscard]] auto cend() const
+	{
+		return end<E>();
+	}
+
+	template <class E>
+	[[nodiscard]] auto rbegin()
+	{
+		return get<E>().rbegin();
+	}
+
+	template <class E>
+	[[nodiscard]] auto rbegin() const
+	{
+		return get<E>().rbegin();
+	}
+
+	template <class E>
+	[[nodiscard]] auto crbegin() const
+	{
+		return rbegin<E>();
+	}
+
+	template <class E>
+	[[nodiscard]] auto rend()
+	{
+		return get<E>().rend();
+	}
+
+	template <class E>
+	[[nodiscard]] auto rend() const
+	{
+		return get<E>().rend();
+	}
+
+	template <class E>
+	[[nodiscard]] auto crend() const
+	{
+		return rend<E>();
+	}
+
+	// FIXME: Added above
+
 	[[nodiscard]] bool empty() const noexcept { return std::get<0>(data_).empty(); }
 
 	[[nodiscard]] std::size_t size() const noexcept { return std::get<0>(data_).size(); }
@@ -745,7 +823,7 @@ class Cloud
 		    [pos, &value](auto&&... data) {
 			    (data.insert(
 			         std::begin(data) + pos.index_,
-			         value.template get<typename std::decay_t<decltype(data)>::value_type>()),
+			         value.template get<typename remove_cvref_t<decltype(data)>::value_type>()),
 			     ...);
 		    },
 		    data_);
@@ -758,7 +836,7 @@ class Cloud
 		    [pos, &value](auto&&... data) {
 			    (data.insert(std::begin(data) + pos.index_,
 			                 std::move(value.template get<
-			                           typename std::decay_t<decltype(data)>::value_type>())),
+			                           typename remove_cvref_t<decltype(data)>::value_type>())),
 			     ...);
 		    },
 		    data_);
@@ -771,7 +849,7 @@ class Cloud
 		    [pos, count, &value](auto&&... data) {
 			    (data.insert(
 			         std::begin(data) + pos.index_, count,
-			         value.template get<typename std::decay_t<decltype(data)>::value_type>()),
+			         value.template get<typename remove_cvref_t<decltype(data)>::value_type>()),
 			     ...);
 		    },
 		    data_);
@@ -836,7 +914,7 @@ class Cloud
 		std::apply(
 		    [&value](auto&&... data) {
 			    (data.push_back(
-			         value.template get<typename std::decay_t<decltype(data)>::value_type>()),
+			         value.template get<typename remove_cvref_t<decltype(data)>::value_type>()),
 			     ...);
 		    },
 		    data_);
@@ -847,7 +925,8 @@ class Cloud
 		std::apply(
 		    [&value](auto&&... data) {
 			    (data.push_back(std::move(
-			         value.template get<typename std::decay_t<decltype(data)>::value_type>())),
+			         value
+			             .template get<typename remove_cvref_t<decltype(data)>::value_type>())),
 			     ...);
 		    },
 		    data_);
@@ -884,7 +963,7 @@ class Cloud
 		    [count, &value](auto... data) {
 			    (data.resize(
 			         count,
-			         value.template get<typename std::decay_t<decltype(data)>::value_type>()),
+			         value.template get<typename remove_cvref_t<decltype(data)>::value_type>()),
 			     ...);
 		    },
 		    data_);
@@ -953,43 +1032,43 @@ class Cloud
 	// Extra functions
 
 	// Const at
-	auto cat(std::size_t index) { return std::as_const(this)->at(index); }
+	[[nodiscard]] auto cat(std::size_t index) { return std::as_const(this)->at(index); }
 
 	// Const operator[]
-	auto value(std::size_t index) { return std::as_const(this)->operator[](index); }
+	[[nodiscard]] auto value(std::size_t index) { return std::as_const(this)->operator[](index); }
 
 	template <class E>
-	std::vector<E>& get()
+	[[nodiscard]] std::vector<E>& get()
 	{
-		return std::get<std::vector<std::decay_t<E>>>(data_);
+		return std::get<std::vector<remove_cvref_t<E>>>(data_);
 	}
 
 	template <class E>
-	std::vector<E> const& get() const
+	[[nodiscard]] std::vector<E> const& get() const
 	{
-		return std::get<std::vector<std::decay_t<E>>>(data_);
+		return std::get<std::vector<remove_cvref_t<E>>>(data_);
 	}
 
 	template <std::size_t I>
-	auto& get()
+	[[nodiscard]] auto& get()
 	{
 		return std::get<I>(data_);
 	}
 
 	template <std::size_t I>
-	auto const& get() const
+	[[nodiscard]] auto const& get() const
 	{
 		return std::get<I>(data_);
 	}
 
 	template <class E>
-	auto data()
+	[[nodiscard]] auto data()
 	{
 		return get<E>().data();
 	}
 
 	template <class E>
-	auto data() const
+	[[nodiscard]] auto data() const
 	{
 		return get<E>().data();
 	}
@@ -1009,25 +1088,25 @@ class Cloud
 };
 
 template <class E, class T, class... Rest>
-std::vector<E>& get(Cloud<T, Rest...>& cloud)
+[[nodiscard]] std::vector<E>& get(Cloud<T, Rest...>& cloud)
 {
 	return cloud.template get<E>();
 }
 
 template <class E, class T, class... Rest>
-std::vector<E> const& get(Cloud<T, Rest...> const& cloud)
+[[nodiscard]] std::vector<E> const& get(Cloud<T, Rest...> const& cloud)
 {
 	return cloud.template get<E>();
 }
 
 template <std::size_t I, class T, class... Rest>
-auto& get(Cloud<T, Rest...>& cloud)
+[[nodiscard]] auto& get(Cloud<T, Rest...>& cloud)
 {
 	return cloud.template get<I>();
 }
 
 template <std::size_t I, class T, class... Rest>
-auto const& get(Cloud<T, Rest...> const& cloud)
+[[nodiscard]] auto const& get(Cloud<T, Rest...> const& cloud)
 {
 	return cloud.template get<I>();
 }
