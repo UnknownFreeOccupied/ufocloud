@@ -139,6 +139,87 @@ void applyTranslation2(ufo::OldCloud<Ts...>& cloud, Point const& translation)
 		e += translation;
 	}
 }
+TEST_CASE("Cloud reserve")
+{
+	ufo::Cloud<Point> cloud;
+	REQUIRE(cloud.size() == 0);
+	REQUIRE(cloud.capacity() == 0);
+
+	cloud.reserve(10);
+
+	REQUIRE(cloud.size() == 0);
+	REQUIRE(cloud.capacity() == 10);
+}
+
+TEST_CASE("Cloud shrink to fit")
+{
+	ufo::Cloud<Point> cloud;
+	REQUIRE(cloud.size() == 0);
+	REQUIRE(cloud.capacity() == 0);
+
+	cloud.reserve(10);
+
+	REQUIRE(cloud.size() == 0);
+	REQUIRE(cloud.capacity() == 10);
+
+	cloud.emplace_back(Point(1, 1, 1));
+	cloud.emplace_back(Point(2, 2, 2));
+
+	REQUIRE(cloud.size() == 2);
+	REQUIRE(cloud.capacity() == 10);
+
+	cloud.shrink_to_fit();
+
+	REQUIRE(cloud.size() == 2);
+	REQUIRE(cloud.capacity() == 2);
+}
+
+TEST_CASE("Cloud clear") {
+	ufo::Cloud<Point> cloud;
+	REQUIRE(cloud.size() == 0);
+	cloud.emplace_back(Point(1, 1, 1));
+	REQUIRE(cloud.size() == 1);\
+	cloud.clear();
+	REQUIRE(cloud.size() == 0);
+}
+
+TEST_CASE("Cloud popback")
+{
+	ufo::Cloud<Point> cloud;
+	cloud.emplace_back(Point(1, 1, 1));
+	cloud.emplace_back(Point(2, 2, 2));
+
+	REQUIRE(cloud.size() == 2);
+	cloud.pop_back();
+	REQUIRE(cloud.size() == 1);
+	cloud.pop_back();
+	REQUIRE(cloud.size() == 0);
+}
+
+TEST_CASE("Cloud resize")
+{
+	SECTION("Resize with default value")
+	{
+		ufo::Cloud<Point> cloud;
+
+		REQUIRE(cloud.size() == 0);
+		cloud.resize(2);
+		REQUIRE(cloud.size() == 2);
+	}
+
+	SECTION("Resize with value")
+	{
+		ufo::Cloud<Point> cloud;
+
+		REQUIRE(cloud.size() == 0);
+
+		cloud.resize(2, Point(1, 2, 3));
+
+		REQUIRE(cloud.size() == 2);
+		REQUIRE(cloud[0].get<Point>() == Point(1, 2, 3));
+		REQUIRE(cloud[1].get<Point>() == Point(1, 2, 3));
+	}
+}
 
 TEST_CASE("Cloud")
 {

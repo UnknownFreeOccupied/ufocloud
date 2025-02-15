@@ -798,7 +798,7 @@ class Cloud
 
 	void reserve(std::size_t new_cap)
 	{
-		std::apply([new_cap](auto... data) { (data.reserve(new_cap), ...); }, data_);
+		std::apply([new_cap](auto&&... data) { (data.reserve(new_cap), ...); }, data_);
 	}
 
 	[[nodiscard]] std::size_t capacity() const noexcept
@@ -809,12 +809,12 @@ class Cloud
 
 	void shrink_to_fit()
 	{
-		std::apply([](auto... data) { (data.shrink_to_fit(), ...); }, data_);
+		std::apply([](auto&&... data) { (data.shrink_to_fit(), ...); }, data_);
 	}
 
 	void clear() noexcept
 	{
-		std::apply([](auto... data) { (data.clear(), ...); }, data_);
+		std::apply([](auto&&... data) { (data.clear(), ...); }, data_);
 	}
 
 	iterator insert(const_iterator pos, value_type const& value)
@@ -949,18 +949,18 @@ class Cloud
 
 	void pop_back()
 	{
-		std::apply([](auto... data) { (data.pop_back(), ...); }, data_);
+		std::apply([](auto&&... data) { (data.pop_back(), ...); }, data_);
 	}
 
 	void resize(std::size_t count)
 	{
-		std::apply([count](auto... data) { (data.resize(count), ...); }, data_);
+		std::apply([count](auto&&... data) { (data.resize(count), ...); }, data_);
 	}
 
 	void resize(std::size_t count, value_type const& value)
 	{
 		std::apply(
-		    [count, &value](auto... data) {
+		    [count, &value](auto&&... data) {
 			    (data.resize(
 			         count,
 			         value.template get<typename remove_cvref_t<decltype(data)>::value_type>()),
