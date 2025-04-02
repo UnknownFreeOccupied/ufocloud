@@ -129,14 +129,14 @@ void filterDistanceInPlace(PointCloud<Dim, T, Rest...>& pc, Vec<Dim, T> const& o
 
 	if (filter_nan) {
 		auto it = std::remove_if(pc.begin(), pc.end(),
-		                         [&origin, &min_sq, &max_sq](Vec<Dim, T> const& x) {
+		                         [&origin, min_sq, max_sq](Vec<Dim, T> const& x) {
 			                         auto dist_sq = distanceSquared(origin, x);
 			                         return min_sq > dist_sq || max_sq < dist_sq || isnan(x);
 		                         });
 		pc.erase(it, pc.end());
 	} else {
 		auto it = std::remove_if(pc.begin(), pc.end(),
-		                         [&origin, &min_sq, &max_sq](Vec<Dim, T> const& x) {
+		                         [&origin, min_sq, max_sq](Vec<Dim, T> const& x) {
 			                         auto dist_sq = distanceSquared(origin, x);
 			                         return min_sq > dist_sq || max_sq < dist_sq;
 		                         });
